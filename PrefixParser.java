@@ -1,3 +1,16 @@
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
 /**
  *Analyze text to detirmine which tokens are used as prefixs to an input.
  **/
@@ -7,18 +20,21 @@ public class PrefixParser {
 
 	private final static IntWritable one = new IntWritable(1);
 	private Text token = new Text();
-	private String infix;
+	private String infix =".";
 	/**
 	 *Updates contex with every token in value used as a prefix to infix, 
 	 *and the frequnecy of each prefix.
 	 **/
-	public void map(Object key, Text value, Context context){
-	    StringTokenixer itr = new StringTokenizer(value.toString());
+	public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+	    StringTokenizer itr = new StringTokenizer(value.toString());
 	    while (itr.hasMoreTokens()){
 		String current = itr.nextToken();
 		if(current.contains(infix)){
-		    word.set(current.split(infix)[0]);
-		    context.write(word, one);
+		    String[] content = current.split(infix);
+		    if(content.length > 0){
+			token.set(content[0]);
+			context.write(token, one);
+		    }
 		}
 	    }
 	}
@@ -29,7 +45,7 @@ public class PrefixParser {
 	
 	public void reduce(Text key, Iterable<IntWritable> values,
                        Context context
-			   ) throws IOException, InteruptedException {
+			   ) throws IOException, InterruptedException {
 	    int sum = 0;
 	    for(IntWritable val: values){
 		sum += val.get();
@@ -43,7 +59,7 @@ public class PrefixParser {
 	Configuration conf = new Configuration();
 	Job job = Job.getInstance(conf, "prefix parser");
 	job.setJarByClass(PrefixParser.class);
-	job.setMapperClass(TokenizerMapper.class);
+	job.setMapperClass(PrefixMapper.class);
 	job.setCombinerClass(IntSumReducer.class);
 	job.setReducerClass(IntSumReducer.class);
 	job.setOutputKeyClass(Text.class);
