@@ -30,11 +30,11 @@ public class PrefixParser {
 	    while (itr.hasMoreTokens()){
 		String current = itr.nextToken();
 		if(current.contains(infix)){
-		    String[] content = current.split(infix);
-		    if(content.length > 0){
-			token.set(content[0]);
+		    int index = current.indexOf(infix);
+		     if(index > 0){
+			token.set(current.substring(0,index));
 			context.write(token, one);
-		    }
+		     }
 		}
 	    }
 	}
