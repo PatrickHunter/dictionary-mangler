@@ -28,7 +28,7 @@ public class DefintionParser {
 
 	private Text key = new Text();
 	private Text value = new Text();
-	private String allCaps = "((?<=\\s[A-Z]+\\s)|(?=\\s[A-Z]+\\s))";
+	private String allCaps = "((?<=\\s[A-Z]{0,20}\\s)|(?=\\s[A-Z]{0,20}\\s))";
 
 	public void map(Object key, Text value, Context context) throws IOException, InterruptedException{
 	    String[] tokenized = value.toString().split(allCaps);
@@ -38,7 +38,7 @@ public class DefintionParser {
 	    }else{
 		current = 1;
 	    }
-	    for(; current < (tokenized.length + 1); current += 2){
+	    for(; current < (tokenized.length - 1); current += 2){
 		this.key.set(tokenized[current]);
 		value.set(tokenized[current + 1]);
 		context.write(this.key,value);
