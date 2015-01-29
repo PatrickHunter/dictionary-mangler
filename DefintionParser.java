@@ -28,7 +28,7 @@ public class DefintionParser {
 
 	private Text key = new Text();
 	private Text value = new Text();
-	private String allCaps = "((?<=\\s[A-Z]{0,20}\\s)|(?=\\s[A-Z]{0,20}\\s))";
+	private String allCaps = "((?<=\\s[A-Z]{2,20}\\s)|(?=\\s[A-Z]{2,20}\\s))";
 
 	public void map(Object key, Text value, Context context) throws IOException, InterruptedException{
 	    String[] tokenized = value.toString().split(allCaps);
