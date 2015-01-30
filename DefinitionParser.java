@@ -54,7 +54,7 @@ public class DefinitionParser {
      * Replace the value with just the parts of speech markers it retians
      * keeps key value
     **/
-    public class DefinitionReducer extends Reducer<Text, Text, Text, Text>{
+    public static class DefinitionReducer extends Reducer<Text, Text, Text, Text>{
 	
 	private Path[] localFiles;
 	private List<String> partsOfSpeach = new ArrayList<String>();
@@ -63,7 +63,7 @@ public class DefinitionParser {
 	 *the list of parts of speech
 	 **/
 	public void configure(JobConf job){
-	    partsOfSpeach.add(" p. ");
+	    partsOfSpeach.add("a");
 	    //localFiles = DistributedCache.getLocalCacheFiles(job);
 	}
 
@@ -74,8 +74,8 @@ public class DefinitionParser {
 		String defintion = current.toString();
 		for(String part: partsOfSpeach){
 		    if(defintion.contains(part)){
-			    value.append(part);
-			}
+			value.append(part);
+		    }
 		}
 	   }
 	    Text output = new Text(value.toString());
@@ -87,8 +87,9 @@ public class DefinitionParser {
     public static void main(String[] args) throws Exception{
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "defintion parser");
-        job.setJarByClass(DefintionParser.class);
+        job.setJarByClass(DefinitionParser.class);
         job.setMapperClass(AllCapsTokenizer.class);
+	job.setReducerClass(DefinitionReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
