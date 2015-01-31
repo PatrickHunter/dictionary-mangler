@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.net.URI;
 import java.util.StringTokenizer;
 import java.util.Scanner;
-
+import java.lang.Math;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.List;
@@ -38,7 +38,7 @@ public class DefinitionParser {
 	private String allCaps = "((?<=\\s[A-Z]{2,20}\\s)|(?=\\s[A-Z]{2,20}\\s))";
 
 	public void map(Object key, Text value, Context context) throws IOException, InterruptedException{
-	    String[] tokenized = value.toString().split(allCaps);
+	    /** String[] tokenized = value.toString().split(allCaps);
 	    int current;
 	    if(tokenized[0].matches("\\s[A-Z]+\\s")){
 		current = 0;
@@ -49,7 +49,10 @@ public class DefinitionParser {
 		this.key.set(tokenized[current]);
 		value.set(tokenized[current + 1]);
 		context.write(this.key,value);
-	    }
+		}**/
+	    double dd = Math.random();
+	    this.key.set(Double.toString(dd));
+	    context.write(this.key, value);
 	}
 	    
     }
@@ -102,7 +105,7 @@ public class DefinitionParser {
         Job job = Job.getInstance(conf, "defintion parser");
         job.setJarByClass(DefinitionParser.class);
         job.setMapperClass(AllCapsTokenizer.class);
-	job.setReducerClass(DefinitionReducer.class);
+	//	job.setReducerClass(DefinitionReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
