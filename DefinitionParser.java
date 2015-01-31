@@ -1,5 +1,9 @@
 import java.io.IOException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URI;
 import java.util.StringTokenizer;
+import java.util.Scanner;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -7,13 +11,13 @@ import java.util.List;
 import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
@@ -58,13 +62,22 @@ public class DefinitionParser {
 	
 	private Path[] localFiles;
 	private List<String> partsOfSpeach = new ArrayList<String>();
-	/**
-	 *load distributed cache files, so reduce can access
-	 *the list of parts of speech
-	 **/
-	public void configure(JobConf job){
-	    partsOfSpeach.add("a");
-	    //localFiles = DistributedCache.getLocalCacheFiles(job);
+
+	@Override
+       protected void setup(Context context){
+	    Scanner sc = null;
+	    try{
+		localFiles = context.getLocalCacheFiles();
+		sc = new Scanner(new File(localFiles[0].toUri()));
+	    } catch(IOException e){
+		System.out.println("IOException");
+		System.out.println(e);
+		return;
+	    }
+
+	    while(sc.hasNext()){
+		partsOfSpeach.add(sc.next());
+	    }
 	}
 
 	public void reduce(Text key, Iterable<Text> values, Context context)
@@ -94,6 +107,7 @@ public class DefinitionParser {
         job.setOutputValueClass(Text.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
+	job.addCacheFile(new URI(args[2]));
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 }
