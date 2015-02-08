@@ -8,7 +8,7 @@ set to add entire token instead of just prefix
 split takes a regex, thats your problem, fixed
 
 plan
-load word types into distributed cach, use mapper to create word defintion pairs, use reducer to extract word types for each word.
+load word types into distributed cache, use mapper to create word defintion pairs, use reducer to extract word types for each word.
 
 problem split doesn't include delimenator
 try lookahead/behind, doesnt allow '+' switch to '{0,20}' hope long enough

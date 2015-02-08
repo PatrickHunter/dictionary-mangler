@@ -49,14 +49,18 @@ public class DefinitionParser {
     }
 
     /**
-     * Replace the value with just the parts of speech markers it retians
-     * keeps key value
+     * Replace the value with just the parts of speech markers retains
+     * key value
      */
     public static class DefinitionReducer extends Reducer<Text, Text, Text, Text> {
 
         private Path[] localFiles;
-        private List<String> partsOfSpeach = new ArrayList<String>();
+        private List<String> partsOfSpeech = new ArrayList<String>();
 
+        /**
+         * Populates this.partsOfSpeech from the distributed cache.
+         * @param context the hadoop supplied reducer context
+         */
         @Override
         protected void setup(Context context) {
             Scanner sc = null;
@@ -70,7 +74,7 @@ public class DefinitionParser {
             }
 
             while (sc.hasNext()) {
-                partsOfSpeach.add(sc.next());
+                partsOfSpeech.add(sc.next());
             }
         }
 
@@ -79,7 +83,7 @@ public class DefinitionParser {
             StringBuffer value = new StringBuffer();
             for (Text current : values) {
                 String defintion = current.toString();
-                for (String part : partsOfSpeach) {
+                for (String part : partsOfSpeech) {
                     if (defintion.contains(part)) {
                         value.append(part);
                     }
@@ -93,10 +97,10 @@ public class DefinitionParser {
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "defintion parser");
+        Job job = Job.getInstance(conf, "definition parser");
         job.setJarByClass(DefinitionParser.class);
         job.setMapperClass(AllCapsTokenizer.class);
-        //	job.setReducerClass(DefinitionReducer.class);
+        job.setReducerClass(DefinitionReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
         job.setInputFormatClass(NLineInputFormatWithNLineReader.class);
