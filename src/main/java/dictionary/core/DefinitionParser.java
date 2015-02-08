@@ -32,22 +32,18 @@ public class DefinitionParser {
         private String allCaps = "((?<=\\s[A-Z]{2,20}\\s)|(?=\\s[A-Z]{2,20}\\s))";
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            /** String[] tokenized = value.toString().split(allCaps);
-             int current;
-             if(tokenized[0].matches("\\s[A-Z]+\\s")){
-             current = 0;
-             }else{
-             current = 1;
-             }
-             for(; current < (tokenized.length - 1); current += 2){
-             this.key.set(tokenized[current]);
-             value.set(tokenized[current + 1]);
-             context.write(this.key,value);
-             }**/
-
-            double dd = Math.random();
-            this.key.set(Double.toString(dd));
-            context.write(this.key, value);
+            String[] tokenized = value.toString().split(allCaps);
+            int current;
+            if (tokenized[0].matches("\\s[A-Z]+\\s")) {
+                current = 0;
+            } else {
+                current = 1;
+            }
+            for (; current < (tokenized.length - 1); current += 2) {
+                this.key.set(tokenized[current]);
+                value.set(tokenized[current + 1]);
+                context.write(this.key, value);
+            }
         }
 
     }
