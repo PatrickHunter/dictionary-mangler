@@ -28,7 +28,6 @@ public class DefinitionParser {
     public static class AllCapsTokenizer extends Mapper<Object, Text, Text, Text> {
 
         private Text key = new Text();
-        private Text value = new Text();
         private String allCaps = "((?<=\\s[A-Z]{2,20}\\s)|(?=\\s[A-Z]{2,20}\\s))";
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
@@ -63,13 +62,13 @@ public class DefinitionParser {
          */
         @Override
         protected void setup(Context context) {
-            Scanner sc = null;
+            Scanner sc ;
             try {
                 localFiles = context.getLocalCacheFiles();
                 sc = new Scanner(new File(localFiles[0].toUri()));
             } catch (IOException e) {
                 System.out.println("IOException");
-                System.out.println(e);
+                System.out.println(e.getMessage());
                 return;
             }
 
@@ -80,17 +79,15 @@ public class DefinitionParser {
 
         public void reduce(Text key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
-            StringBuffer value = new StringBuffer();
             for (Text current : values) {
                 String defintion = current.toString();
                 for (String part : partsOfSpeech) {
                     if (defintion.contains(part)) {
-                        value.append(part);
+                        Text output = new Text(part);
+                        context.write(key, output);
                     }
                 }
             }
-            Text output = new Text(value.toString());
-            context.write(key, output);
         }
     }
 
